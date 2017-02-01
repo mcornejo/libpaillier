@@ -12,9 +12,16 @@ $ ./configure
 $ make
 ```
 
+## Running Tests
+
+```sh
+$ gcc -O3 test.c paillier.o -lgmp -o test -std=gnu11
+$ ./test
+```
+
 ## Running Benchmarks
 
 ```sh
 $ gcc -O3 bench.c paillier.o -lgmp -o bench -std=gnu11
-./bench
+$ ./bench
 ```
