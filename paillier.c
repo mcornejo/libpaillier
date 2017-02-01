@@ -187,6 +187,8 @@ void paillier_enc(paillier_ciphertext_t **res, paillier_pubkey_t *pub, paillier_
 	/* pick random blinding factor */
 
 	mpz_init(r);
+    mpz_init(x);
+    
  	init_rand(rand, get_rand, pub->bits / 8 + 1);
 	do
 		mpz_urandomb(r, rand, pub->bits);
@@ -194,7 +196,7 @@ void paillier_enc(paillier_ciphertext_t **res, paillier_pubkey_t *pub, paillier_
 
 	/* compute ciphertext */
 
-    mpz_init(x);
+    
     
     mpz_mul((*res)->c, pt->m, pub->n);
     mpz_add_ui((*res)->c, (*res)->c, 1);
@@ -204,6 +206,7 @@ void paillier_enc(paillier_ciphertext_t **res, paillier_pubkey_t *pub, paillier_
     mpz_mul((*res)->c, (*res)->c, x);
     mpz_mod((*res)->c, (*res)->c, pub->n_squared);
     
+    gmp_randclear(rand);
     mpz_clear(x);
     mpz_clear(r);
 }
@@ -313,10 +316,7 @@ paillier_plaintext_t* paillier_plaintext_from_str(char *str, int radix)
     
     //return paillier_plaintext_from_bytes(str, strlen(str));
     
-    paillier_plaintext_t *pt;
-    
-    pt = (paillier_plaintext_t*) malloc(sizeof(paillier_plaintext_t));
-    mpz_init(pt->m);
+    paillier_plaintext_t *pt = (paillier_plaintext_t*) malloc(sizeof(paillier_plaintext_t));
     mpz_init_set_str(pt->m, str, radix);
     
     return pt;

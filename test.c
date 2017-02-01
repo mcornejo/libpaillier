@@ -99,6 +99,8 @@ int main(int argc, char **argv) {
         gmp_printf("expected:  %Zd\n", added);
         return EXIT_FAILURE;
     }
+    
+    mpz_clear(added);
 
     printf("ALL TESTS PASSED\n");
     
@@ -120,5 +122,4 @@ int main(int argc, char **argv) {
 
     
     return 0;
-    
 }

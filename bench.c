@@ -48,15 +48,6 @@ double avg_time(double in_arr[]) {
     return sum/ROUNDS;
 }
 
-void free_paillier_params(paillier_params_t *params) {
-    paillier_freepubkey(params->pub);
-    paillier_freeprvkey(params->prv);
-    paillier_freeplaintext(params->plaintext);
-    paillier_freeciphertext(params->ciphertext1);
-    paillier_freeciphertext(params->ciphertext2);
-    paillier_freeciphertext(params->ciphertext_result);
-}
-
 
 /* Benchmarks */
 
@@ -147,10 +138,12 @@ double test_decryption_small(int bitlength){
     my_params->plaintext = paillier_plaintext_from_ui(42);
     paillier_enc(&(my_params->ciphertext1), my_params->pub, my_params->plaintext, paillier_get_rand_devurandom);
     
+    
     for(int i = 0; i<ROUNDS; i++){
-        small_decryption_times[i] = time_it(bench_paillier_decryption, (void*)my_params);
         paillier_freeplaintext(my_params->plaintext);
+        small_decryption_times[i] = time_it(bench_paillier_decryption, (void*)my_params);
     }
+    paillier_freeplaintext(my_params->plaintext);
     paillier_freeciphertext(my_params->ciphertext1);
     paillier_freepubkey(my_params->pub);
     paillier_freeprvkey(my_params->prv);
@@ -170,9 +163,10 @@ double test_decryption_large(int bitlength){
     
     
     for(int i = 0; i<ROUNDS; i++){
-        large_decryption_times[i] = time_it(bench_paillier_decryption, (void*)my_params);
         paillier_freeplaintext(my_params->plaintext);
+        large_decryption_times[i] = time_it(bench_paillier_decryption, (void*)my_params);
     }
+    paillier_freeplaintext(my_params->plaintext);
     paillier_freeciphertext(my_params->ciphertext1);
     paillier_freepubkey(my_params->pub);
     paillier_freeprvkey(my_params->prv);
@@ -192,6 +186,8 @@ double test_multiplication(int bitlength){
     my_params->plaintext = paillier_plaintext_from_ui(42);
     paillier_enc(&(my_params->ciphertext1), my_params->pub, my_params->plaintext, paillier_get_rand_devurandom);
     
+    paillier_freeplaintext(my_params->plaintext);
+    
     my_params->plaintext = paillier_plaintext_from_str(magic_number_str, 10);
     paillier_enc(&(my_params->ciphertext2), my_params->pub, my_params->plaintext, paillier_get_rand_devurandom);
     
@@ -199,6 +195,7 @@ double test_multiplication(int bitlength){
         multiplication_times[i] = time_it(bench_paillier_multiplication, (void*)my_params);
         paillier_freeciphertext(my_params->ciphertext_result);
     }
+    paillier_freeplaintext(my_params->plaintext);
     paillier_freeciphertext(my_params->ciphertext1);
     paillier_freeciphertext(my_params->ciphertext2);
     paillier_freepubkey(my_params->pub);
@@ -225,7 +222,7 @@ void run_encryption_large_tests(){
     printf("ENCRYPTION LARGE (%d bits) AVG TIME: %lf ms\n", 1024, test_encryption_large(1024)*1000);
     printf("ENCRYPTION LARGE (%d bits) AVG TIME: %lf ms\n", 2048, test_encryption_large(2048)*1000);
     printf("ENCRYPTION LARGE (%d bits) AVG TIME: %lf ms\n", 3072, test_encryption_large(3072)*1000);
-    printf("ENCRYPTION RANDOM (%d bits) AVG TIME: %lf ms\n", 4096, test_encryption_large(4096)*1000);
+    printf("ENCRYPTION LARGE (%d bits) AVG TIME: %lf ms\n", 4096, test_encryption_large(4096)*1000);
 }
 
 void run_decryption_small_tests(){
@@ -251,11 +248,13 @@ void run_multiplication_tests(){
 
 
 int main(int argc, char **argv){
-    run_keygen_tests();
+   
+    //run_keygen_tests();
     run_encryption_small_tests();
     run_encryption_large_tests();
     run_decryption_small_tests();
     run_decryption_large_tests();
     run_multiplication_tests();
+
     return 0;
 }
